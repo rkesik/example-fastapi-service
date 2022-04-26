@@ -7,8 +7,6 @@ from fastapi.responses import RedirectResponse
 
 from scheme import GetPage, InfoMessage, PageOut
 
-SIZE_POOL_AIOHTTP = 100
-
 
 class PageDownloader:
     client: Optional[aiohttp.ClientSession] = None
@@ -88,13 +86,6 @@ async def download_pages(pages: List[GetPage]) -> List[PageOut]:
         tasks.append(task)
     results = await asyncio.gather(*tasks)
     return results
-
-
-# @app.post("/ping", response_model=PageOut)
-# async def download_page_content(url: GetPage) -> PageOut:
-#     """Downloads a page content as a string"""
-#     content = await get_page_content(url)
-#     return {'content': content}
 
 
 @app.get("/info")
