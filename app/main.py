@@ -9,6 +9,22 @@ from scheme import GetPage, InfoMessage, PageOut
 
 
 class PageDownloader:
+    """Aiohttp client as singleton to better utlize resources in async mode.
+
+    Before running we should setup our clinet by invoking `get_client` that would
+    set class level client which can be used in other places before closing session.
+    After finishing our jobs we should close client by invoking `close_client`.
+
+    Example:
+        PageDownloader.get_client()
+        PageDownloader.get_page(...)
+        PageDownloader.get_page(...)
+        ...
+        PageDownloader.close_client()
+
+
+    """
+
     client: Optional[aiohttp.ClientSession] = None
     size: int = 5
 
@@ -28,6 +44,13 @@ class PageDownloader:
 
     @classmethod
     async def get_page(cls, page: GetPage) -> Any:
+        """Gets page content
+        If given resource is a API - json-like object will be returend in case of regular web page -> body of response
+        In case of any error instead of regular reponse with {"contnet": ...}
+        additional key would be present  "error" containing error message for
+        future debuging.
+
+        """
         url = page.url
         client = cls.get_client()
         try:
@@ -92,3 +115,9 @@ async def download_pages(pages: List[GetPage]) -> List[PageOut]:
 async def info() -> InfoMessage:
     """Returns message"""
     return {"Receiver": "Cisco is the best!"}
+
+
+if __name__ == "__main__":
+    import uvicorn  # noqa
+
+    uvicorn.run(app, port=8001, host="0.0.0.0")
